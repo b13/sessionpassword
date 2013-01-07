@@ -1,0 +1,8 @@
+<f:if condition="{wrongPasswordEntered}">
+	<div class="error">Your entered password was wrong.</div>
+</f:if>
+<f:form action="unlock">
+	<p>Please enter a password to access more information</p>
+	<f:form.password name="password" />
+	<f:form.submit name="submitButton" class="btn" value="Unlock" />
+</f:form>

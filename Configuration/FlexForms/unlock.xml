@@ -1,0 +1,60 @@
+<T3DataStructure>
+  <meta>
+        <langDisable>1</langDisable>
+  </meta>
+  <sheets>
+	<sDEF>
+	  <ROOT>
+		<TCEforms>
+		  <sheetTitle>Password Form Options</sheetTitle>
+		</TCEforms>
+		<type>array</type>
+		<el>
+			<settings.password>
+				<TCEforms>
+					<exclude>1</exclude>
+					<label>Unlock the following password</label>
+					<config>
+						<type>input</type>
+						<size>20</size>
+					</config>
+				</TCEforms>
+			</settings.password>
+			<settings.sessionUsergroups>
+				<TCEforms>
+					<exclude>1</exclude>
+					<label>Add the user to the following groups after successful login (only for this session)</label>
+					<config>
+						<type>select</type>
+						<foreign_table>fe_groups</foreign_table>
+						<!-- <foreign_table_where>AND fe_groups.pid=###STORAGE_PID###</foreign_table_where> -->
+						<size>4</size>
+						<maxitems>10</maxitems>
+					</config>
+				</TCEforms>
+			</settings.sessionUsergroups>
+			<settings.redirectPage>
+				<TCEforms>
+					<exclude>1</exclude>
+					<label>Redirect to the following page after successful login</label>
+					<config>
+						<type>input</type>
+						<size>10</size>
+						<softref>typolink</softref>
+						<wizards>
+							<link>
+								<icon>link_popup.gif</icon>
+								<JSopenParams>height=300,width=500,status=0,menubar=0,scrollbars=1</JSopenParams>
+								<script>browse_links.php?mode=wizard</script>
+								<type>popup</type>
+								<title>No title</title>
+							</link>
+						</wizards>
+					</config>
+				</TCEforms>
+			</settings.redirectPage>
+		</el>
+	  </ROOT>
+	</sDEF>
+  </sheets>
+</T3DataStructure>

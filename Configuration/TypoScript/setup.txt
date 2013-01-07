@@ -1,0 +1,13 @@
+ # Plugin configuration
+plugin.tx_sessionpassword {
+	settings {
+		# should always and only be set by the flexform
+		# password = 
+		# redirectPage = 
+	}
+	view {
+		templateRootPath = {$plugin.tx_sessionpassword.view.templateRootPath}
+		partialRootPath = {$plugin.tx_sessionpassword.view.partialRootPath}
+		layoutRootPath = {$plugin.tx_sessionpassword.view.layoutRootPath}
+	}
+}
