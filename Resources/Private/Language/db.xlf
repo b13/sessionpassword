@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+<file source-language="en"
+	  datatype="plaintext"
+	  original="messages"
+	  product-name="sessionpassword">
+	<header/>
+	<body>
+		<trans-unit id="tt_content.tx_sessionpassword">
+			<source>Password-protect this element</source>
+		</trans-unit>
+	</body>
+</file>
+</xliff>

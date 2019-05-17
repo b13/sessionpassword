@@ -1,0 +1,25 @@
+{
+	"name": "b13/sessionpassword",
+	"type": "typo3-cms-extension",
+	"description": "Session Password",
+	"homepage": "https://b13.com",
+	"license": ["GPL-2.0-or-later"],
+	"authors": [{
+		"name": "Benni Mack",
+		"email": "benni@b13.com",
+		"role": "Maintainer"
+	}],
+	"require": {
+		"typo3/cms-core": ">=7.6.0 <=9.5.99"
+	},
+	"extra": {
+		"typo3/cms": {
+			"extension-key": "sessionpassword"
+		}
+	},
+	"autoload": {
+		"psr-4": {
+			"B13\\Sessionpassword\\": "Classes/"
+		}
+	}
+}

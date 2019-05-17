@@ -13,7 +13,7 @@
 			<settings.password>
 				<TCEforms>
 					<exclude>1</exclude>
-					<label>Unlock the following password</label>
+					<label>Unlock with the following password</label>
 					<config>
 						<type>input</type>
 						<size>20</size>
@@ -28,6 +28,7 @@
 						<type>select</type>
 						<foreign_table>fe_groups</foreign_table>
 						<!-- <foreign_table_where>AND fe_groups.pid=###STORAGE_PID###</foreign_table_where> -->
+						<foreign_table_where>ORDER BY fe_groups.title ASC</foreign_table_where>
 						<size>4</size>
 						<maxitems>10</maxitems>
 					</config>
@@ -45,7 +46,9 @@
 							<link>
 								<icon>link_popup.gif</icon>
 								<JSopenParams>height=300,width=500,status=0,menubar=0,scrollbars=1</JSopenParams>
-								<script>browse_links.php?mode=wizard</script>
+								<module>
+									<name>wizard_link</name>
+								</module>
 								<type>popup</type>
 								<title>No title</title>
 							</link>

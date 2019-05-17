@@ -1,8 +1,23 @@
-<f:if condition="{wrongPasswordEntered}">
-	<div class="error">Your entered password was wrong.</div>
-</f:if>
+<div class="tx-felogin-pi1">
 <f:form action="unlock">
-	<p>Please enter a password to access more information</p>
-	<f:form.password name="password" />
-	<f:form.submit name="submitButton" class="btn" value="Unlock" />
+	<fieldset>
+		<f:if condition="{wrongPasswordEntered}">
+			<f:then>
+				<div class="error"><p>Your entered password was wrong.</p></div>
+			</f:then>
+			<f:else>
+				<div><p>Please enter a password to access more information.</p></div>
+			</f:else>
+		</f:if>
+		<div class="form-group">
+			<f:form.hidden name="referer" value="{referer}" />
+			<f:form.password name="password" />
+		</div>
+		<div class="form-group">
+			<button type="submit" name="submit" value="Unlock" class="btn btn-large-width btn-primary btn-image-right inline">Unlock</button>
+		</div>
+	</fieldset>
 </f:form>
+</div>
+
+
