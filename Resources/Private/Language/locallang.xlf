@@ -15,12 +15,6 @@
 			<trans-unit id="button.unlock">
 				<source>Unlock</source>
 			</trans-unit>
-			<trans-unit id="">
-				<source></source>
-			</trans-unit>
-			<trans-unit id="">
-				<source></source>
-			</trans-unit>
 		</body>
 	</file>
 </xliff>
