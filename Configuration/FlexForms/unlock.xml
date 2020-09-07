@@ -40,7 +40,7 @@
 					<label>Redirect to the following page after successful login</label>
 					<config>
 						<type>input</type>
-						<size>10</size>
+						<size>50</size>
 						<softref>typolink</softref>
 						<wizards>
 							<link>
