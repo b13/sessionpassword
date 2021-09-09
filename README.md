@@ -2,16 +2,24 @@ TYPO3 Extension Session Password
 ================================
 
 [Latest Version on Packagist][link-packagist]
-[Software License](LICENSE.md)
+[Software License](LICENSE.txt)
 
-TYPO3 Extension: Use a simple password form to add usergroups and show pages/content only for the current session.
+Use a simple password form to add usergroups and show pages/content only for the current frontend user session.
 
-On logout, the sessions are removed.
+On an active logout, the sessions are removed again.
 
 ## Installation
 
 Just use `composer req b13/sessionpassword` and install the extension via the Extension Manager,
 then you have a new plugin ready to go.
+
+
+## Configuration
+
+Depending on your use-case, the extension has one option in the Extension Settings
+to use hashed passwords in the flexform (= stored in the database). It is useful to activate this option
+especially for new installations, but with this option activated, there is no way for editors / admins to retrieve
+the entered password again.
 
 
 ## Credits

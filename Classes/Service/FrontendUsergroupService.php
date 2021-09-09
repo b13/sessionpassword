@@ -1,4 +1,5 @@
 <?php
+
 namespace B13\Sessionpassword\Service;
 
 /*
@@ -10,6 +11,7 @@ namespace B13\Sessionpassword\Service;
  */
 
 use B13\Sessionpassword\Helper\SessionHelper;
+use TYPO3\CMS\Core\Authentication\AbstractAuthenticationService;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
@@ -19,7 +21,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Helper object to check if certain usergroups should be added based on
  * the filled forms.
  */
-class FrontendUsergroupService extends \TYPO3\CMS\Sv\AbstractAuthenticationService
+class FrontendUsergroupService extends AbstractAuthenticationService
 {
     /**
      * all valid session usergroups and their subgroups.
@@ -31,9 +33,9 @@ class FrontendUsergroupService extends \TYPO3\CMS\Sv\AbstractAuthenticationServi
     protected function findValidSessionUsergroups()
     {
         $groups = [];
-        $sessionHelper = GeneralUtility::makeInstance(SessionHelper::class);
+        $sessionHelper = GeneralUtility::makeInstance(SessionHelper::class, $this->pObj);
         $allSessionData = $sessionHelper->getAllSessionData();
-        foreach ($allSessionData as $encryptedPassword => $data) {
+        foreach ($allSessionData as $hashedPassword => $data) {
             if (isset($data['usergroups'])) {
                 $this->getSubGroups($data['usergroups'], '', $groups);
             }
@@ -54,13 +56,11 @@ class FrontendUsergroupService extends \TYPO3\CMS\Sv\AbstractAuthenticationServi
         $groups = [];
 
         if (GeneralUtility::_GP('logintype') === 'logout') {
-            GeneralUtility::makeInstance(SessionHelper::class)->clearSessionData();
+            GeneralUtility::makeInstance(SessionHelper::class, $this->pObj)->clearSessionData();
         } else {
             $groups = $this->findValidSessionUsergroups();
             if (!empty($groups)) {
-                if ($this->writeDevLog) {
-                    GeneralUtility::devLog('Get usergroups with id: ' . implode(',', $groups), __CLASS__);
-                }
+                $this->logger->debug('Get usergroups with id: ' . implode(',', $groups));
                 $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
                     ->getQueryBuilderForTable($this->db_groups['table']);
                 if (!empty($this->authInfo['showHiddenRecords'])) {
@@ -105,7 +105,6 @@ class FrontendUsergroupService extends \TYPO3\CMS\Sv\AbstractAuthenticationServi
      * @param string $idList List of already processed fe_groups-uids so the function will not fall into an eternal recursion.
      * @param array $groups
      * @return array
-     * @access private
      */
     public function getSubGroups($grList, $idList, &$groups)
     {

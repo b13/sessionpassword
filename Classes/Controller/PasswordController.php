@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace B13\Sessionpassword\Controller;
 
 /*
@@ -9,14 +12,16 @@ namespace B13\Sessionpassword\Controller;
  * of the License, or any later version.
  */
 
+use B13\Sessionpassword\Helper\PasswordHasher;
 use B13\Sessionpassword\Helper\SessionHelper;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 /**
  * The application logic for the Password Form
  * allows to enter a password that is stored in the session.
  */
-class PasswordController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
+class PasswordController extends ActionController
 {
     /**
      * Displays a form to enter a certain password and save the valid password
@@ -28,12 +33,12 @@ class PasswordController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControl
      *
      * @param string $password the entered password
      * @param string $referer URL to redirect to. Takes pre
-     * @return string
      */
     public function unlockAction($password = null, $referer = '')
     {
-        $sessionHelper = $this->objectManager->get(SessionHelper::class);
-        $neededPassword = $this->hashifyPassword($this->settings['password']);
+        $sessionHelper = GeneralUtility::makeInstance(SessionHelper::class);
+        $passwordHelper = GeneralUtility::makeInstance(PasswordHasher::class);
+        $neededPassword = $this->settings['password'];
         $enteredPassword = $password;
 
         $this->view->assign('data', $this->configurationManager->getContentObject()->data);
@@ -47,48 +52,34 @@ class PasswordController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionControl
             }
             // case 2: needed password is not in session
             // => show the form without any message
-        } else {
-            $enteredPassword = $this->hashifyPassword($enteredPassword);
-
+        } elseif (!$passwordHelper->checkPassword($enteredPassword, $neededPassword)) {
             // case 3: wrong entered password => show the form plus a message
-            if ($enteredPassword !== $neededPassword) {
-                $this->view->assign('wrongPasswordEntered', true);
+            $this->view->assign('wrongPasswordEntered', true);
+        } else {
+            // case 4: valid entered password => store in session and check for a redirect
+
+            // check if we need to add usergroups
+            if ($this->settings['sessionUsergroups']) {
+                $sessionHelper->storeInSession($enteredPassword, ['usergroups' => $this->settings['sessionUsergroups']]);
             } else {
-                // case 4: valid entered password => store in session and check for a redirect
-                // check if we need to add usergroups
+                $sessionHelper->storeInSession($enteredPassword);
+            }
+            // make sure the groups get initialized again, (done via the FrontendUsergroupService)
+            // so if the redirect page is a protected page, you can
+            // @todo: maybe we need to do the storeInSession in an earlier phase.
+            $GLOBALS['TSFE']->initUserGroups();
 
-                if ($this->settings['sessionUsergroups']) {
-                    $sessionHelper->storeInSession($enteredPassword, ['usergroups' => $this->settings['sessionUsergroups']]);
-                } else {
-                    $sessionHelper->storeInSession($enteredPassword);
-                }
-                // make sure the groups get initialized again, so if the redirect page is a protected page, you can
-                // @todo: maybe we need to do the storeInSession in an earlier phase.
-                $GLOBALS['TSFE']->initUserGroups();
+            if (!empty($referer)) {
+                $this->redirectToUri($referer);
+            }
 
-                if (!empty($referer)) {
-                    $GLOBALS['TSFE']->config['config']['typolinkLinkAccessRestrictedPages'] = 1;
-                    $this->redirectToUri($referer);
-                }
-
-                if ($this->settings['redirectPage']) {
-                    $GLOBALS['TSFE']->config['config']['typolinkLinkAccessRestrictedPages'] = 1;
-                    $this->redirect(null, null, null, [], $this->settings['redirectPage']);
-                }
+            if ($this->settings['redirectPage']) {
+                $url = $this->configurationManager->getContentObject()->typoLink_URL([
+                    'parameter' => $this->settings['redirectPage'],
+                    'linkAccessRestrictedPages' => 1
+                ]);
+                $this->redirectToUri($url);
             }
         }
-    }
-
-    /**
-     * helper function to not work with the passwords
-     * directly.
-     *
-     * @param string $string
-     *
-     * @return string
-     */
-    protected function hashifyPassword($string)
-    {
-        return GeneralUtility::hmac($string);
     }
 }

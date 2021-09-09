@@ -1,12 +1,12 @@
 <div class="tx-felogin-pi1">
-<f:form action="unlock">
+<f:form action="unlock" method="post">
 	<fieldset>
 		<f:if condition="{wrongPasswordEntered}">
 			<f:then>
-				<div class="error"><p>{f:translate(key: 'error.invalidPassword')}</p></div>
+				<div class="error"><p>{f:translate(key: 'error.invalidPassword', extensionName: 'sessionpassword')}</p></div>
 			</f:then>
 			<f:else>
-				<div><p>{f:translate(key: 'pleaseEnterPassword')}</p></div>
+				<div><p>{f:translate(key: 'pleaseEnterPassword', extensionName: 'sessionpassword')}</p></div>
 			</f:else>
 		</f:if>
 		<div class="form-group">
@@ -14,7 +14,7 @@
 			<f:form.password name="password" />
 		</div>
 		<div class="form-group">
-			<button type="submit" name="submit" value="{f:translate(key: 'button.unlock')}" class="btn btn-large-width btn-primary btn-image-right inline">{f:translate(key: 'button.unlock')}</button>
+			<button type="submit" name="submit" value="{f:translate(key: 'button.unlock', extensionName: 'sessionpassword')}" class="btn btn-large-width btn-primary btn-image-right inline">{f:translate(key: 'button.unlock', extensionName: 'sessionpassword')}</button>
 		</div>
 	</fieldset>
 </f:form>

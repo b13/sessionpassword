@@ -1,4 +1,5 @@
 <?php
+
 namespace B13\Sessionpassword\Service;
 
 /*
@@ -11,13 +12,14 @@ namespace B13\Sessionpassword\Service;
 
 use B13\Sessionpassword\Helper\SessionHelper;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectPostInitHookInterface;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
  * Helper object to NOT render a cObj if the data contains the
  * tx_sessionpassword, which is not in the session.
  */
-class ContentObjectService implements \TYPO3\CMS\Frontend\ContentObject\ContentObjectPostInitHookInterface
+class ContentObjectService implements ContentObjectPostInitHookInterface
 {
     /**
      * called at the end of cObj->start().
@@ -30,24 +32,10 @@ class ContentObjectService implements \TYPO3\CMS\Frontend\ContentObject\ContentO
             // make the content element non-cacheable, as it is based on the session password
 
             $sessionHelper = GeneralUtility::makeInstance(SessionHelper::class);
-            if ($sessionHelper->isInSession($this->hashifyPassword($parentObject->data['tx_sessionpassword']))) {
+            if ($sessionHelper->isInSession($parentObject->data['tx_sessionpassword'])) {
                 // unlocked => show the content element
-            } else {
-                // is locked
             }
+            // is locked
         }
-    }
-
-    /**
-     * helper function to not work with the passwords
-     * directly.
-     *
-     * @param string $string
-     *
-     * @return string
-     */
-    protected function hashifyPassword($string)
-    {
-        return GeneralUtility::hmac($string);
     }
 }

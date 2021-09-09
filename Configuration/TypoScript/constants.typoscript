@@ -7,8 +7,4 @@ plugin.tx_sessionpassword {
 		 # cat=plugin.tx_sessionpassword/file; type=string; label=Path to template layouts (FE)
 		layoutRootPath = EXT:sessionpassword/Resources/Private/Layouts/
 	}
-	persistence {
-		 # cat=plugin.tx_sessionpassword//a; type=string; label=Sysfolder with all items
-		storagePid =
-	}
 }

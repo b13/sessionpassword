@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace B13\Sessionpassword\Helper;
 
 /*
@@ -9,10 +12,13 @@ namespace B13\Sessionpassword\Helper;
  * of the License, or any later version.
  */
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
+
 /**
  * Helper object to access a certain password from the session
  * only worries if a certain password (hash) in the session, and how it
- * is stored in there.
+ * is stored in there. Hashing however is taken care outside of the session.
  */
 class SessionHelper
 {
@@ -20,20 +26,37 @@ class SessionHelper
     protected $namespace = 'tx_sessionpassword';
 
     /**
+     * @var FrontendUserAuthentication
+     */
+    protected $userObj;
+
+    /**
+     * @var PasswordHasher
+     */
+    protected $passwordHasher;
+
+    public function __construct(FrontendUserAuthentication $user = null)
+    {
+        $this->userObj = $user ?? $this->getUserObject();
+        /** @var PasswordHasher $passwordHelper */
+        $this->passwordHasher = GeneralUtility::makeInstance(PasswordHasher::class);
+    }
+
+    /**
      * stores a certain value in the
      * current frontend session.
      */
     public function storeInSession($key, $value = true)
     {
-        $frontendUserObject = $this->getUserObject();
         $allSessionData = $this->getAllSessionData();
 
+        $key = $this->passwordHasher->hashPassword($key);
         // store the value as key in an array
         $allSessionData[$key] = $value;
 
         // save the data in the session
-        $frontendUserObject->setKey('ses', $this->namespace, $allSessionData);
-        $GLOBALS['TSFE']->storeSessionData();
+        $this->userObj->setKey('ses', $this->namespace, $allSessionData);
+        $this->userObj->storeSessionData();
     }
 
     /**
@@ -46,12 +69,12 @@ class SessionHelper
      */
     public function isInSession($value)
     {
+        $value = $this->passwordHasher->ensurePasswordIsHashed($value);
         $allSessionData = $this->getAllSessionData();
         if (isset($allSessionData[$value])) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -61,13 +84,11 @@ class SessionHelper
      */
     public function getAllSessionData()
     {
-        $frontendUserObject = $this->getUserObject();
-        $allSessionData = $frontendUserObject->getKey('ses', $this->namespace);
+        $allSessionData = $this->userObj->getKey('ses', $this->namespace);
         if (is_array($allSessionData)) {
             return $allSessionData;
-        } else {
-            return array();
         }
+        return [];
     }
 
     /**
@@ -76,25 +97,18 @@ class SessionHelper
      */
     public function clearSessionData()
     {
-        $allSessionData = array();
-
         // save an empty array in the session and override everything
-        $frontendUserObject = $this->getUserObject();
-        $frontendUserObject->setKey('ses', $this->namespace, $allSessionData);
-        $frontendUserObject->storeSessionData();
+        $this->userObj->setKey('ses', $this->namespace, []);
+        $this->userObj->storeSessionData();
     }
 
     /**
      * wrapper function to fetch the FrontendUserAuthentication object.
      *
-     * @return \TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication
+     * @return FrontendUserAuthentication
      */
     protected function getUserObject()
     {
-        if (\TYPO3\CMS\Core\Utility\GeneralUtility::_GET('eID')) {
-            return \TYPO3\CMS\Frontend\Utility\EidUtility::initFeUser();
-        } else {
-            return $GLOBALS['TSFE']->fe_user;
-        }
+        return $GLOBALS['TSFE']->fe_user;
     }
 }
