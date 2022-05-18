@@ -4,7 +4,7 @@ services:
     autoconfigure: false
     public: false
 
-  T3Monitor\T3monitoringClient\Slots\ExtensionManagerListener:
+  B13\Sessionpassword\EventListener\ModifyResolvedFrontendGroups:
     tags:
       - name: event.listener
         identifier: 'sessionPasswordGroups'
