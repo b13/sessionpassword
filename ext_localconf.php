@@ -7,10 +7,10 @@ defined('TYPO3_MODE') or die();
  * the user input (default settings, FlexForm, URL etc.)
  */
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
-    'B13.Sessionpassword',
+    'Sessionpassword',
     'Password',
-    ['Password' => 'unlock'],
-    ['Password' => 'unlock']
+    [\B13\Sessionpassword\Controller\PasswordController::class => 'unlock'],
+    [\B13\Sessionpassword\Controller\PasswordController::class => 'unlock']
 );
 
 // hook to see if the content object is allowed to render anything at all,
