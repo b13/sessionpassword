@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    autowire: false
+    autoconfigure: false
+    public: false
+
+  T3Monitor\T3monitoringClient\Slots\ExtensionManagerListener:
+    tags:
+      - name: event.listener
+        identifier: 'sessionPasswordGroups'
+        event: TYPO3\CMS\Frontend\Authentication\ModifyResolvedFrontendGroupsEvent
