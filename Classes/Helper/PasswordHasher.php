@@ -19,15 +19,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class PasswordHasher
 {
-    /**
-     * @var PasswordHashInterface
-     */
-    protected $hasher;
-
-    /**
-     * @var bool
-     */
-    protected $useHashedPasswordsInDatabase;
+    protected PasswordHashInterface $hasher;
+    protected bool $useHashedPasswordsInDatabase;
 
     public function __construct()
     {

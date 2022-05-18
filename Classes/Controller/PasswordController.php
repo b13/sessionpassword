@@ -73,7 +73,7 @@ class PasswordController extends ActionController
                 $this->redirectToUri($referer);
             }
 
-            if ($this->settings['redirectPage']) {
+            if ($this->settings['redirectPage'] && $this->configurationManager->getContentObject()) {
                 $url = $this->configurationManager->getContentObject()->typoLink_URL([
                     'parameter' => $this->settings['redirectPage'],
                     'linkAccessRestrictedPages' => 1
