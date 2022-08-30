@@ -16,6 +16,8 @@ use B13\Sessionpassword\Helper\PasswordHasher;
 use B13\Sessionpassword\Helper\SessionHelper;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * The application logic for the Password Form
@@ -60,15 +62,16 @@ class PasswordController extends ActionController
 
             // check if we need to add usergroups
             if ($this->settings['sessionUsergroups']) {
-                $sessionHelper->storeInSession($enteredPassword, ['usergroups' => $this->settings['sessionUsergroups']]);
+                $sessionHelper->storeInSession($neededPassword, ['usergroups' => $this->settings['sessionUsergroups']]);
             } else {
-                $sessionHelper->storeInSession($enteredPassword);
+                $sessionHelper->storeInSession($neededPassword);
             }
             // make sure the groups get initialized again, (done via the FrontendUsergroupService)
             // so if the redirect page is a protected page, you can
             // @todo: maybe we need to do the storeInSession in an earlier phase.
-            $GLOBALS['TSFE']->initUserGroups();
-
+            /** @var TypoScriptFrontendController $tsfe */
+            $tsfe = $GLOBALS['TSFE'];
+            $tsfe->initUserGroups();
             if (!empty($referer)) {
                 $this->redirectToUri($referer);
             }
