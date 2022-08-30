@@ -1,6 +1,6 @@
 <?php
 
-defined('TYPO3_MODE') or die();
+defined('TYPO3') or die();
 
 /*
  * Configure the Plugin to call the right combination of Controller and Action according to
