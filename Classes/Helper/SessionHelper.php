@@ -23,30 +23,20 @@ use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 class SessionHelper
 {
     // namespace within the fe_user session object
-    protected $namespace = 'tx_sessionpassword';
-
-    /**
-     * @var FrontendUserAuthentication
-     */
-    protected $userObj;
-
-    /**
-     * @var PasswordHasher
-     */
-    protected $passwordHasher;
+    protected string $namespace = 'tx_sessionpassword';
+    protected FrontendUserAuthentication $userObj;
+    protected PasswordHasher $passwordHasher;
 
     public function __construct(FrontendUserAuthentication $user = null)
     {
         $this->userObj = $user ?? $this->getUserObject();
-        /** @var PasswordHasher $passwordHelper */
         $this->passwordHasher = GeneralUtility::makeInstance(PasswordHasher::class);
     }
 
     /**
-     * stores a certain value in the
-     * current frontend session.
+     * stores a certain value in the current frontend session.
      */
-    public function storeInSession($key, $value = true)
+    public function storeInSession($key, $value = true): void
     {
         $allSessionData = $this->getAllSessionData();
 
@@ -60,29 +50,19 @@ class SessionHelper
     }
 
     /**
-     * checks if a certain value is stored
-     * in the current frontend session.
-     *
-     * @param string $value the value to check for
-     *
-     * @return bool
+     * checks if a certain value is stored in the current frontend session.
      */
-    public function isInSession($value)
+    public function isInSession(string $value): bool
     {
         $value = $this->passwordHasher->ensurePasswordIsHashed($value);
         $allSessionData = $this->getAllSessionData();
-        if (isset($allSessionData[$value])) {
-            return true;
-        }
-        return false;
+        return isset($allSessionData[$value]);
     }
 
     /**
      * returns all unlocked session passwords.
-     *
-     * @return array
      */
-    public function getAllSessionData()
+    public function getAllSessionData(): array
     {
         $allSessionData = $this->userObj->getKey('ses', $this->namespace);
         if (is_array($allSessionData)) {
@@ -95,7 +75,7 @@ class SessionHelper
      * removes all stored passwords from the
      * current frontend session.
      */
-    public function clearSessionData()
+    public function clearSessionData(): void
     {
         // save an empty array in the session and override everything
         $this->userObj->setKey('ses', $this->namespace, []);
@@ -104,10 +84,8 @@ class SessionHelper
 
     /**
      * wrapper function to fetch the FrontendUserAuthentication object.
-     *
-     * @return FrontendUserAuthentication
      */
-    protected function getUserObject()
+    protected function getUserObject(): FrontendUserAuthentication
     {
         return $GLOBALS['TSFE']->fe_user;
     }
