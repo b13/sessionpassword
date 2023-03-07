@@ -24,17 +24,17 @@ use TYPO3\CMS\Frontend\Authentication\ModifyResolvedFrontendGroupsEvent;
 
 class ModifyResolvedFrontendGroups
 {
-
     protected string $usergroupTable;
     protected LoggerInterface $logger;
 
     public function __invoke(ModifyResolvedFrontendGroupsEvent $event): void
     {
+
+        $allGroups = $event->getGroups();
         $this->logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
         $this->usergroupTable = $event->getUser()->usergroup_table;
 
         $groups = [];
-
         if (GeneralUtility::_GP('logintype') === 'logout') {
             GeneralUtility::makeInstance(SessionHelper::class, $event->getUser())->clearSessionData();
         } else {
@@ -57,12 +57,13 @@ class ModifyResolvedFrontendGroups
                     )
                     ->execute();
                 while ($row = $res->fetch()) {
-                    $groups[$row['uid']] = $row;
+                    $allGroups[$row['uid']] = $row;
                 }
             }
         }
 
-        $event->setGroups($groups);
+
+        $event->setGroups($allGroups);
     }
 
     protected function findValidSessionUsergroups(FrontendUserAuthentication $frontendUserAuthentication)
