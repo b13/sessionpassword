@@ -56,7 +56,7 @@ class ModifyResolvedFrontendGroups
                         )
                     )
                     ->execute();
-                while ($row = $res->fetchAssociative()) {
+                while ($row = $res->fetch()) {
                     $allGroups[$row['uid']] = $row;
                 }
             }
@@ -115,7 +115,7 @@ class ModifyResolvedFrontendGroups
         // Internal group record storage
         $groupRows = [];
         // The groups array is filled
-        while ($row = $res->fetchAssociative()) {
+        while ($row = $res->fetch()) {
             if (!in_array($row['uid'], $groups)) {
                 $groups[] = $row['uid'];
             }
