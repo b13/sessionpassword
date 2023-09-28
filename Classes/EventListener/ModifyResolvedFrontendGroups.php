@@ -130,7 +130,7 @@ class ModifyResolvedFrontendGroups
             // Must be an array and $uid should not be in the idList, because then it is somewhere previously in the grouplist
             if (is_array($row) && !GeneralUtility::inList($idList, $uid)) {
                 // Include sub groups
-                if (array_key_exists('subgroup', $row)) {
+                if (array_key_exists('subgroup', $row) && $row['subgroup'] !== '') {
                     // Make integer list
                     $theList = implode(',', GeneralUtility::intExplode(',', $row['subgroup']));
                     // Call recursively, pass along list of already processed groups so they are not processed again.
