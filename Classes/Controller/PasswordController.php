@@ -14,9 +14,11 @@ namespace B13\Sessionpassword\Controller;
 
 use B13\Sessionpassword\Helper\PasswordHasher;
 use B13\Sessionpassword\Helper\SessionHelper;
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 
 /**
  * The application logic for the Password Form
@@ -32,10 +34,10 @@ class PasswordController extends ActionController
      *    case 3: wrong entered password => show the form plus a message
      *    case 4: valid entered password => store in session and check for a redirect
      *
-     * @param string $password the entered password
+     * @param string|null $password the entered password
      * @param string $referer URL to redirect to. Takes pre
      */
-    public function unlockAction($password = null, $referer = '')
+    public function unlockAction(?string $password = null, string $referer = ''): ResponseInterface
     {
         $sessionHelper = GeneralUtility::makeInstance(SessionHelper::class);
         $passwordHelper = GeneralUtility::makeInstance(PasswordHasher::class);
@@ -49,7 +51,7 @@ class PasswordController extends ActionController
         if ($enteredPassword === null) {
             // case 1: needed password is in session => don't show anything as everything is done already
             if ($sessionHelper->isInSession($neededPassword)) {
-                return '';
+                return new HtmlResponse('');
             }
             // case 2: needed password is not in session
             // => show the form without any message
@@ -68,9 +70,9 @@ class PasswordController extends ActionController
             // make sure the groups get initialized again, (done via the FrontendUsergroupService)
             // so if the redirect page is a protected page, you can
             // @todo: maybe we need to do the storeInSession in an earlier phase.
-            /** @var TypoScriptFrontendController $tsfe */
-            $tsfe = $GLOBALS['TSFE'];
-            $tsfe->initUserGroups();
+            /** @var FrontendUserAuthentication $frontendUser */
+            $frontendUser = $this->request->getAttribute('frontend.user');
+            $frontendUser->fetchGroupData($this->request);
             if (!empty($referer)) {
                 $this->redirectToUri($referer);
             }
@@ -80,8 +82,9 @@ class PasswordController extends ActionController
                     'parameter' => $this->settings['redirectPage'],
                     'linkAccessRestrictedPages' => 1
                 ]);
-                $this->redirectToUri($url);
+                return $this->redirectToUri($url);
             }
         }
+        return new HtmlResponse($this->view->render());
     }
 }

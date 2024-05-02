@@ -1,11 +1,14 @@
 services:
   _defaults:
-    autowire: false
-    autoconfigure: false
+    autowire: true
+    autoconfigure: true
     public: false
 
   B13\Sessionpassword\:
     resource: '../Classes/*'
+
+  B13\Sessionpassword\Controller\PasswordController:
+    public: true
 
   B13\Sessionpassword\EventListener\ModifyResolvedFrontendGroups:
     tags:

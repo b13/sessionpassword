@@ -25,17 +25,17 @@ use TYPO3\CMS\Frontend\Authentication\ModifyResolvedFrontendGroupsEvent;
 class ModifyResolvedFrontendGroups
 {
     protected string $usergroupTable;
+    protected array $authInfo;
     protected LoggerInterface $logger;
 
     public function __invoke(ModifyResolvedFrontendGroupsEvent $event): void
     {
-
         $allGroups = $event->getGroups();
         $this->logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
         $this->usergroupTable = $event->getUser()->usergroup_table;
-
-        $groups = [];
-        if (GeneralUtility::_GP('logintype') === 'logout') {
+        $this->authInfo = $event->getUser()->getAuthInfoArray($event->getRequest());
+        $loginType = (string)($event->getRequest()->getQueryParams()['logintype'] ?? $event->getRequest()->getParsedBody()['logintype'] ?? '');
+        if ($loginType === 'logout') {
             GeneralUtility::makeInstance(SessionHelper::class, $event->getUser())->clearSessionData();
         } else {
             $groups = $this->findValidSessionUsergroups($event->getUser());
@@ -55,18 +55,16 @@ class ModifyResolvedFrontendGroups
                             $queryBuilder->createNamedParameter($groups, Connection::PARAM_INT_ARRAY)
                         )
                     )
-                    ->execute();
-                while ($row = $res->fetch()) {
-                    $allGroups[$row['uid']] = $row;
+                    ->executeQuery();
+                while ($row = $res->fetchAssociative()) {
+                    $allGroups[] = $row;
                 }
             }
         }
-
-
         $event->setGroups($allGroups);
     }
 
-    protected function findValidSessionUsergroups(FrontendUserAuthentication $frontendUserAuthentication)
+    protected function findValidSessionUsergroups(FrontendUserAuthentication $frontendUserAuthentication): array
     {
         $groups = [];
         $sessionHelper = GeneralUtility::makeInstance(SessionHelper::class, $frontendUserAuthentication);
@@ -90,7 +88,7 @@ class ModifyResolvedFrontendGroups
      * @param array $groups
      * @return array
      */
-    public function getSubGroups($grList, $idList, &$groups)
+    protected function getSubGroups(string $grList, string $idList, array &$groups): void
     {
         // Fetching records of the groups in $grList (which are not blocked by lockedToDomain either):
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_groups');
@@ -110,12 +108,12 @@ class ModifyResolvedFrontendGroups
                     )
                 )
             )
-            ->execute();
+            ->executeQuery();
 
         // Internal group record storage
         $groupRows = [];
         // The groups array is filled
-        while ($row = $res->fetch()) {
+        while ($row = $res->fetchAssociative()) {
             if (!in_array($row['uid'], $groups)) {
                 $groups[] = $row['uid'];
             }

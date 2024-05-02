@@ -12,6 +12,7 @@ namespace B13\Sessionpassword\Helper;
  * of the License, or any later version.
  */
 
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 
@@ -87,6 +88,13 @@ class SessionHelper
      */
     protected function getUserObject(): FrontendUserAuthentication
     {
-        return $GLOBALS['TSFE']->fe_user;
+        $user = null;
+        if (($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface) {
+            $user = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.user');
+        }
+        if ($user === null) {
+            return $GLOBALS['TSFE']->fe_user;
+        }
+        return $user;
     }
 }
