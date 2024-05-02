@@ -25,7 +25,7 @@ class ContentObjectService implements ContentObjectPostInitHookInterface
      * called at the end of cObj->start().
      * @param ContentObjectRenderer $parentObject
      */
-    public function postProcessContentObjectInitialization(ContentObjectRenderer &$parentObject)
+    public function postProcessContentObjectInitialization(ContentObjectRenderer &$parentObject): void
     {
         // check if the DB record has a tx_sessionpassword
         if ($parentObject->getCurrentTable() === 'tt_content' && !empty($parentObject->data['tx_sessionpassword'])) {
