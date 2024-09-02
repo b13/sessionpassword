@@ -17,6 +17,7 @@ use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
+use TYPO3\CMS\Core\Environment;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
@@ -30,6 +31,9 @@ class ModifyResolvedFrontendGroups
 
     public function __invoke(ModifyResolvedFrontendGroupsEvent $event): void
     {
+        if (Environment::isCli()) {
+            return;
+        }
         $allGroups = $event->getGroups();
         $this->logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
         $this->usergroupTable = $event->getUser()->usergroup_table;
