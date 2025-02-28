@@ -1,5 +1,16 @@
-plugin.tx_sessionpassword.view {
-    templateRootPath.5 = {$plugin.tx_sessionpassword.view.templateRootPath}
-    partialRootPath.5 = {$plugin.tx_sessionpassword.view.partialRootPath}
-    layoutRootPath.5 = {$plugin.tx_sessionpassword.view.layoutRootPath}
+plugin.tx_sessionpassword_password {
+  view {
+    templateRootPaths {
+      5 = EXT:sessionpassword/Resources/Private/Templates/
+      10 = {$plugin.tx_sessionpassword.view.templateRootPath}
+    }
+    partialRootPaths {
+      5 = EXT:sessionpassword/Resources/Private/Partials/
+      10 = {$plugin.tx_sessionpassword.view.partialRootPath}
+    }
+    layoutRootPaths {
+      5 = EXT:sessionpassword/Resources/Private/Layouts/
+      10 = {$plugin.tx_sessionpassword.view.layoutRootPath}
+    }
+  }
 }
