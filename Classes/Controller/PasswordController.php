@@ -62,7 +62,7 @@ class PasswordController extends ActionController
             // case 4: valid entered password => store in session and check for a redirect
 
             // check if we need to add usergroups
-            if ($this->settings['sessionUsergroups']) {
+            if ($this->settings['sessionUsergroups'] ?? null) {
                 $sessionHelper->storeInSession($neededPassword, ['usergroups' => $this->settings['sessionUsergroups']]);
             } else {
                 $sessionHelper->storeInSession($neededPassword);
