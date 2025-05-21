@@ -6,12 +6,9 @@ services:
 
   B13\Sessionpassword\:
     resource: '../Classes/*'
-
-  B13\Sessionpassword\Controller\PasswordController:
-    public: true
+    exclude: '../Classes/Helper/SessionHelper.php'
 
   B13\Sessionpassword\EventListener\ModifyResolvedFrontendGroups:
     tags:
       - name: event.listener
         identifier: 'txSessionPasswordGroups'
-        event: TYPO3\CMS\Frontend\Authentication\ModifyResolvedFrontendGroupsEvent

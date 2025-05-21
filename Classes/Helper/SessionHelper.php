@@ -12,8 +12,6 @@ namespace B13\Sessionpassword\Helper;
  * of the License, or any later version.
  */
 
-use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 
 /**
@@ -25,14 +23,8 @@ class SessionHelper
 {
     // namespace within the fe_user session object
     protected string $namespace = 'tx_sessionpassword';
-    protected FrontendUserAuthentication $userObj;
-    protected PasswordHasher $passwordHasher;
 
-    public function __construct(FrontendUserAuthentication $user = null)
-    {
-        $this->userObj = $user ?? $this->getUserObject();
-        $this->passwordHasher = GeneralUtility::makeInstance(PasswordHasher::class);
-    }
+    public function __construct(private FrontendUserAuthentication $frontendUserAuthentication) {}
 
     /**
      * stores a certain value in the current frontend session.
@@ -45,8 +37,8 @@ class SessionHelper
         $allSessionData[$key] = $value;
 
         // save the data in the session
-        $this->userObj->setKey('ses', $this->namespace, $allSessionData);
-        $this->userObj->storeSessionData();
+        $this->frontendUserAuthentication->setKey('ses', $this->namespace, $allSessionData);
+        $this->frontendUserAuthentication->storeSessionData();
     }
 
     /**
@@ -63,7 +55,7 @@ class SessionHelper
      */
     public function getAllSessionData(): array
     {
-        $allSessionData = $this->userObj->getKey('ses', $this->namespace);
+        $allSessionData = $this->frontendUserAuthentication->getKey('ses', $this->namespace);
         if (is_array($allSessionData)) {
             return $allSessionData;
         }
@@ -77,22 +69,7 @@ class SessionHelper
     public function clearSessionData(): void
     {
         // save an empty array in the session and override everything
-        $this->userObj->setKey('ses', $this->namespace, []);
-        $this->userObj->storeSessionData();
-    }
-
-    /**
-     * wrapper function to fetch the FrontendUserAuthentication object.
-     */
-    protected function getUserObject(): FrontendUserAuthentication
-    {
-        $user = null;
-        if (($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface) {
-            $user = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.user');
-        }
-        if ($user === null) {
-            return $GLOBALS['TSFE']->fe_user;
-        }
-        return $user;
+        $this->frontendUserAuthentication->setKey('ses', $this->namespace, []);
+        $this->frontendUserAuthentication->storeSessionData();
     }
 }

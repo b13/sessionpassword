@@ -6,7 +6,7 @@
 	<f:if condition="{loggedIn}">
 		<f:then>
 			<fieldset>
-				<form action="">
+				<form action="" method="post">
 					<f:form.hidden name="logintype" value="logout" />
 					<div class="form-group">
 						<button type="submit" value="{f:translate(key: 'button.logout', extensionName: 'sessionpassword')}" class="btn btn-large-width btn-primary btn-image-right inline">

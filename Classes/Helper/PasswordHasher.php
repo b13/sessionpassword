@@ -12,7 +12,6 @@ namespace B13\Sessionpassword\Helper;
  * of the License, or any later version.
  */
 
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -26,7 +25,6 @@ class PasswordHasher
         // needs to be "BE" as data stored inside "tt_content" is marked as "BE" (see DataHandler)
         $this->hasher = GeneralUtility::makeInstance(PasswordHashFactory::class)->getDefaultHashInstance('BE');
     }
-
 
     public function hashPassword(string $enteredPassword): string
     {

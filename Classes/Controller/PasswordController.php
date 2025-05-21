@@ -16,9 +16,11 @@ use B13\Sessionpassword\Helper\PasswordHasher;
 use B13\Sessionpassword\Helper\SessionHelper;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 /**
  * The application logic for the Password Form
@@ -26,6 +28,8 @@ use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
  */
 class PasswordController extends ActionController
 {
+    public function __construct(private readonly PasswordHasher $passwordHasher) {}
+
     /**
      * Displays a form to enter a certain password and save the valid password
      * in the session.
@@ -34,17 +38,22 @@ class PasswordController extends ActionController
      *    case 3: wrong entered password => show the form plus a message
      *    case 4: valid entered password => store in session and check for a redirect
      *
-     * @param string|null $password the entered password
-     * @param string $referer URL to redirect to. Takes pre
+     * @param ?string $password the entered password
+     * @param ?string $referer URL to redirect to. Takes pre
      */
-    public function unlockAction(?string $password = null, string $referer = ''): ResponseInterface
+    public function unlockAction(?string $password = null, ?string $referer = null): ResponseInterface
     {
-        $sessionHelper = GeneralUtility::makeInstance(SessionHelper::class);
-        $passwordHelper = GeneralUtility::makeInstance(PasswordHasher::class);
-        $neededPassword = $this->settings['password'];
+
+        $neededPassword = $this->settings['password'] ?? null;
+        if ($neededPassword === null) {
+            throw new \InvalidArgumentException('password setting is required.', 1747826469);
+        }
         $enteredPassword = $password;
 
-        $this->view->assign('data', $this->configurationManager->getContentObject()->data);
+        /** @var FrontendUserAuthentication $frontendUserAuthentication */
+        $frontendUserAuthentication = $this->request->getAttribute('frontend.user');
+        $sessionHelper = GeneralUtility::makeInstance(SessionHelper::class, $frontendUserAuthentication);
+
         $this->view->assign('referer', $referer);
 
         // case 1 and 2: no entered password
@@ -55,7 +64,7 @@ class PasswordController extends ActionController
             }
             // case 2: needed password is not in session
             // => show the form without any message
-        } elseif (!$passwordHelper->checkPassword($enteredPassword, $neededPassword)) {
+        } elseif (!$this->passwordHasher->checkPassword($enteredPassword, $neededPassword)) {
             // case 3: wrong entered password => show the form plus a message
             $this->view->assign('wrongPasswordEntered', true);
         } else {
@@ -70,26 +79,33 @@ class PasswordController extends ActionController
             // make sure the groups get initialized again, (done via the FrontendUsergroupService)
             // so if the redirect page is a protected page, you can
             // @todo: maybe we need to do the storeInSession in an earlier phase.
-            /** @var FrontendUserAuthentication $frontendUser */
-            $frontendUser = $this->request->getAttribute('frontend.user');
-            $frontendUser->fetchGroupData($this->request);
-            if (!empty($referer)) {
-                $this->redirectToUri($referer);
+            $frontendUserAuthentication->fetchGroupData($this->request);
+            if ($referer !== null) {
+                return new RedirectResponse($referer);
             }
-
-            if ($this->settings['redirectPage'] && $this->configurationManager->getContentObject()) {
-                $url = $this->configurationManager->getContentObject()->typoLink_URL([
+            $contentObjectRenderer = $this->request->getAttribute('currentContentObject');
+            if (!empty($this->settings['redirectPage'] ?? null)) {
+                $url = $contentObjectRenderer->typoLink_URL([
                     'parameter' => $this->settings['redirectPage'],
                     'linkAccessRestrictedPages' => 1,
                 ]);
-                return $this->redirectToUri($url);
+                return new RedirectResponse($url);
             }
-            $url = $this->configurationManager->getContentObject()->typoLink_URL([
-                'parameter' => $GLOBALS['TSFE']->id,
+
+            $url = $contentObjectRenderer->typoLink_URL([
+                'parameter' => $this->getCurrentPageId(),
                 'linkAccessRestrictedPages' => 1,
             ]);
-            return $this->redirectToUri($url);
+            return new RedirectResponse($url);
         }
         return new HtmlResponse($this->view->render());
+    }
+
+    protected function getCurrentPageId(): int
+    {
+        // use frontend.page.information attribute when v12 is dropped
+        /** @var TypoScriptFrontendController $frontendController */
+        $frontendController = $this->request->getAttribute('frontend.controller');
+        return $frontendController->id;
     }
 }
