@@ -51,7 +51,7 @@ class PasswordController extends ActionController
         if ($enteredPassword === null) {
             // case 1: needed password is in session => don't show anything as everything is done already
             if ($sessionHelper->isInSession($neededPassword)) {
-                return new HtmlResponse('');
+                $this->view->assign('loggedIn', true);
             }
             // case 2: needed password is not in session
             // => show the form without any message
@@ -84,6 +84,7 @@ class PasswordController extends ActionController
                 ]);
                 return $this->redirectToUri($url);
             }
+            $this->view->assign('loggedIn', true);
         }
         return new HtmlResponse($this->view->render());
     }
