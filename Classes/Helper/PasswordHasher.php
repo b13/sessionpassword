@@ -20,22 +20,13 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class PasswordHasher
 {
     protected PasswordHashInterface $hasher;
-    protected bool $useHashedPasswordsInDatabase;
 
     public function __construct()
     {
         // needs to be "BE" as data stored inside "tt_content" is marked as "BE" (see DataHandler)
         $this->hasher = GeneralUtility::makeInstance(PasswordHashFactory::class)->getDefaultHashInstance('BE');
-        $this->useHashedPasswordsInDatabase = (bool)GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('sessionpassword', 'useHashedPasswords');
     }
 
-    public function ensurePasswordIsHashed(string $plainOrHashedPassword): string
-    {
-        if ($this->useHashedPasswordsInDatabase) {
-            return $plainOrHashedPassword;
-        }
-        return $this->hashPassword($plainOrHashedPassword);
-    }
 
     public function hashPassword(string $enteredPassword): string
     {
@@ -44,7 +35,6 @@ class PasswordHasher
 
     public function checkPassword(string $enteredPassword, string $neededPassword): bool
     {
-        $neededPassword = $this->ensurePasswordIsHashed($neededPassword);
         return $this->hasher->checkPassword($enteredPassword, $neededPassword);
     }
 }

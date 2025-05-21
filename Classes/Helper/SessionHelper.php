@@ -54,7 +54,6 @@ class SessionHelper
      */
     public function isInSession(string $value): bool
     {
-        $value = $this->passwordHasher->ensurePasswordIsHashed($value);
         $allSessionData = $this->getAllSessionData();
         return isset($allSessionData[$value]);
     }
