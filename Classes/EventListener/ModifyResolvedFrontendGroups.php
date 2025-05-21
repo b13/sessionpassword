@@ -44,6 +44,9 @@ class ModifyResolvedFrontendGroups
         } else {
             $groups = $this->findValidSessionUsergroups($event->getUser());
             if (!empty($groups)) {
+                if ($event->getUser()->user === null) {
+                    $event->getUser()->user = [];
+                }
                 $this->logger->debug('Get usergroups with id: ' . implode(',', $groups));
                 $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
                     ->getQueryBuilderForTable($this->usergroupTable);
