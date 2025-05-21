@@ -80,11 +80,15 @@ class PasswordController extends ActionController
             if ($this->settings['redirectPage'] && $this->configurationManager->getContentObject()) {
                 $url = $this->configurationManager->getContentObject()->typoLink_URL([
                     'parameter' => $this->settings['redirectPage'],
-                    'linkAccessRestrictedPages' => 1
+                    'linkAccessRestrictedPages' => 1,
                 ]);
                 return $this->redirectToUri($url);
             }
-            $this->view->assign('loggedIn', true);
+            $url = $this->configurationManager->getContentObject()->typoLink_URL([
+                'parameter' => $GLOBALS['TSFE']->id,
+                'linkAccessRestrictedPages' => 1,
+            ]);
+            return $this->redirectToUri($url);
         }
         return new HtmlResponse($this->view->render());
     }
