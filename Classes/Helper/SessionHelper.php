@@ -41,7 +41,6 @@ class SessionHelper
     {
         $allSessionData = $this->getAllSessionData();
 
-        $key = $this->passwordHasher->hashPassword($key);
         // store the value as key in an array
         $allSessionData[$key] = $value;
 
