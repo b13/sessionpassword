@@ -13,6 +13,7 @@
 					<config>
 						<type>input</type>
 						<size>20</size>
+						<eval>required</eval>
 					</config>
 				</TCEforms>
 			</settings.password>
@@ -27,6 +28,7 @@
 						<foreign_table_where>ORDER BY fe_groups.title ASC</foreign_table_where>
 						<size>4</size>
 						<maxitems>10</maxitems>
+						<eval>required</eval>
 					</config>
 				</TCEforms>
 			</settings.sessionUsergroups>
