@@ -13,12 +13,10 @@ namespace B13\Sessionpassword\EventListener;
  */
 
 use B13\Sessionpassword\Helper\SessionHelper;
+use Doctrine\DBAL\ArrayParameterType;
 use Psr\Log\LoggerInterface;
-use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
-use TYPO3\CMS\Core\Environment;
-use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\CMS\Frontend\Authentication\ModifyResolvedFrontendGroupsEvent;
@@ -26,8 +24,8 @@ use TYPO3\CMS\Frontend\Authentication\ModifyResolvedFrontendGroupsEvent;
 class ModifyResolvedFrontendGroups
 {
     protected string $usergroupTable;
-    protected array $authInfo;
-    protected LoggerInterface $logger;
+
+    public function __construct(private readonly LoggerInterface $logger, private readonly ConnectionPool $connectionPool) {}
 
     public function __invoke(ModifyResolvedFrontendGroupsEvent $event): void
     {
@@ -35,28 +33,25 @@ class ModifyResolvedFrontendGroups
             return;
         }
         $allGroups = $event->getGroups();
-        $this->logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
         $this->usergroupTable = $event->getUser()->usergroup_table;
-        $this->authInfo = $event->getUser()->getAuthInfoArray($event->getRequest());
         $loginType = (string)($event->getRequest()->getQueryParams()['logintype'] ?? $event->getRequest()->getParsedBody()['logintype'] ?? '');
         if ($loginType === 'logout') {
             GeneralUtility::makeInstance(SessionHelper::class, $event->getUser())->clearSessionData();
         } else {
             $groups = $this->findValidSessionUsergroups($event->getUser());
             if (!empty($groups)) {
-                $this->logger->debug('Get usergroups with id: ' . implode(',', $groups));
-                $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-                    ->getQueryBuilderForTable($this->usergroupTable);
-                if (!empty($this->authInfo['showHiddenRecords'])) {
-                    $queryBuilder->getRestrictions()->removeByType(HiddenRestriction::class);
+                if ($event->getUser()->user === null) {
+                    $event->getUser()->user = [];
                 }
+                $this->logger->debug('Get usergroups with id: ' . implode(',', $groups));
+                $queryBuilder = $this->connectionPool->getQueryBuilderForTable($this->usergroupTable);
 
                 $res = $queryBuilder->select('*')
                     ->from($this->usergroupTable)
                     ->where(
                         $queryBuilder->expr()->in(
                             'uid',
-                            $queryBuilder->createNamedParameter($groups, Connection::PARAM_INT_ARRAY)
+                            $queryBuilder->createNamedParameter($groups, ArrayParameterType::INTEGER)
                         )
                     )
                     ->executeQuery();
@@ -90,15 +85,11 @@ class ModifyResolvedFrontendGroups
      * @param string $grList Commalist of fe_groups uid numbers
      * @param string $idList List of already processed fe_groups-uids so the function will not fall into an eternal recursion.
      * @param array $groups
-     * @return array
      */
     protected function getSubGroups(string $grList, string $idList, array &$groups): void
     {
         // Fetching records of the groups in $grList (which are not blocked by lockedToDomain either):
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_groups');
-        if (!empty($this->authInfo['showHiddenRecords'])) {
-            $queryBuilder->getRestrictions()->removeByType(HiddenRestriction::class);
-        }
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($this->usergroupTable);
 
         $res = $queryBuilder
             ->select('uid', 'subgroup')
@@ -108,7 +99,7 @@ class ModifyResolvedFrontendGroups
                     'uid',
                     $queryBuilder->createNamedParameter(
                         GeneralUtility::intExplode(',', $grList, true),
-                        Connection::PARAM_INT_ARRAY
+                        ArrayParameterType::INTEGER
                     )
                 )
             )
@@ -130,9 +121,9 @@ class ModifyResolvedFrontendGroups
             // Get row:
             $row = $groupRows[$uid];
             // Must be an array and $uid should not be in the idList, because then it is somewhere previously in the grouplist
-            if (is_array($row) && !GeneralUtility::inList($idList, $uid)) {
+            if (is_array($row) && !GeneralUtility::inList($idList, (string)$uid)) {
                 // Include sub groups
-                if (array_key_exists('subgroup', $row) && $row['subgroup'] !== '') {
+                if (($row['subgroup'] ?? '') !== '') {
                     // Make integer list
                     $theList = implode(',', GeneralUtility::intExplode(',', $row['subgroup']));
                     // Call recursively, pass along list of already processed groups so they are not processed again.

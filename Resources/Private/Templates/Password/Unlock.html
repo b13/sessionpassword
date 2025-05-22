@@ -1,23 +1,44 @@
+<html
+		xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+		data-namespace-typo3-fluid="true"
+>
 <div class="tx-felogin-pi1">
-<f:form action="unlock" method="post">
-	<fieldset>
-		<f:if condition="{wrongPasswordEntered}">
-			<f:then>
-				<div class="error"><p>{f:translate(key: 'error.invalidPassword', extensionName: 'sessionpassword')}</p></div>
-			</f:then>
-			<f:else>
-				<div><p>{f:translate(key: 'pleaseEnterPassword', extensionName: 'sessionpassword')}</p></div>
-			</f:else>
-		</f:if>
-		<div class="form-group">
-			<f:form.hidden name="referer" value="{referer}" />
-			<f:form.password name="password" />
-		</div>
-		<div class="form-group">
-			<button type="submit" name="submit" value="{f:translate(key: 'button.unlock', extensionName: 'sessionpassword')}" class="btn btn-large-width btn-primary btn-image-right inline">{f:translate(key: 'button.unlock', extensionName: 'sessionpassword')}</button>
-		</div>
-	</fieldset>
-</f:form>
+	<f:if condition="{loggedIn}">
+		<f:then>
+			<fieldset>
+				<form action="" method="post">
+					<f:form.hidden name="logintype" value="logout" />
+					<div class="form-group">
+						<button type="submit" value="{f:translate(key: 'button.logout', extensionName: 'sessionpassword')}" class="btn btn-large-width btn-primary btn-image-right inline">
+							{f:translate(key: 'button.logout', extensionName: 'sessionpassword')}
+						</button>
+					</div>
+				</form>
+			</fieldset>
+		</f:then>
+		<f:else>
+			<f:form action="unlock" method="post">
+				<fieldset>
+					<f:if condition="{wrongPasswordEntered}">
+						<f:then>
+							<div class="error"><p>{f:translate(key: 'error.invalidPassword', extensionName: 'sessionpassword')}</p></div>
+						</f:then>
+						<f:else>
+							<div><p>{f:translate(key: 'pleaseEnterPassword', extensionName: 'sessionpassword')}</p></div>
+						</f:else>
+					</f:if>
+					<div class="form-group">
+						<f:form.hidden name="referer" value="{referer}" />
+						<f:form.password name="password" />
+					</div>
+					<div class="form-group">
+						<button type="submit" name="submit" value="{f:translate(key: 'button.unlock', extensionName: 'sessionpassword')}" class="btn btn-large-width btn-primary btn-image-right inline">{f:translate(key: 'button.unlock', extensionName: 'sessionpassword')}</button>
+					</div>
+				</fieldset>
+			</f:form>
+		</f:else>
+	</f:if>
 </div>
+</html>
 
 

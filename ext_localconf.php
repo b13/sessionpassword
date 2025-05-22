@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 defined('TYPO3') or die();
 
 /*
@@ -13,10 +15,5 @@ defined('TYPO3') or die();
     [\B13\Sessionpassword\Controller\PasswordController::class => 'unlock']
 );
 
-// hook to see if the content object is allowed to render anything at all,
-// based on the data inside the cObj
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_content.php']['cObjTypeAndClass']['sessionpassword'] = [
-    'sessionpassword',    // key for the array
-    \B13\Sessionpassword\Service\ContentObjectService::class,    // class to instantiate
-];
-
+// should be changed, when v12 support is dropped
+// \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT

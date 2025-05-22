@@ -14,14 +14,6 @@ Just use `composer req b13/sessionpassword` and install the extension via the Ex
 then you have a new plugin ready to go.
 
 
-## Configuration
-
-Depending on your use-case, the extension has one option in the Extension Settings
-to use hashed passwords in the flexform (= stored in the database). It is useful to activate this option
-especially for new installations, but with this option activated, there is no way for editors / admins to retrieve
-the entered password again.
-
-
 ## Credits
 
 * [Benni Mack][link-author]

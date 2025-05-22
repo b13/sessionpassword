@@ -1,2 +1,0 @@
-# cat=basic/enable; type=boolean; label=LLL:EXT:sessionpassword/Resources/Private/Language/locallang.xlf:configuration.hashedPasswords.title
-useHashedPasswords = 1
