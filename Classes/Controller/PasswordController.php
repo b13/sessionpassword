@@ -80,7 +80,7 @@ class PasswordController extends ActionController
             // so if the redirect page is a protected page, you can
             // @todo: maybe we need to do the storeInSession in an earlier phase.
             $frontendUserAuthentication->fetchGroupData($this->request);
-            if ($referer !== null) {
+            if ($referer !== null && $referer !== '') {
                 return new RedirectResponse($referer);
             }
             $contentObjectRenderer = $this->request->getAttribute('currentContentObject');
