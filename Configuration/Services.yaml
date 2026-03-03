@@ -7,8 +7,3 @@ services:
   B13\Sessionpassword\:
     resource: '../Classes/*'
     exclude: '../Classes/Helper/SessionHelper.php'
-
-  B13\Sessionpassword\EventListener\ModifyResolvedFrontendGroups:
-    tags:
-      - name: event.listener
-        identifier: 'txSessionPasswordGroups'
