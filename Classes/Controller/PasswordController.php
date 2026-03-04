@@ -20,7 +20,7 @@ use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Frontend\Page\PageInformation;
 
 /**
  * The application logic for the Password Form
@@ -103,9 +103,8 @@ class PasswordController extends ActionController
 
     protected function getCurrentPageId(): int
     {
-        // use frontend.page.information attribute when v12 is dropped
-        /** @var TypoScriptFrontendController $frontendController */
-        $frontendController = $this->request->getAttribute('frontend.controller');
-        return $frontendController->id;
+        /** @var PageInformation $pageInformation */
+        $pageInformation = $this->request->getAttribute('frontend.page.information');
+        return $pageInformation->getId();
     }
 }

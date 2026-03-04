@@ -12,7 +12,7 @@ $EM_CONF[$_EXTKEY] = [
     'version' => '3.0.1',
     'constraints' => [
         'depends' => [
-            'core' => '12.4.0-13.99.99',
+            'core' => '13.4.0-14.99.99',
         ],
         'conflicts' => [
         ],

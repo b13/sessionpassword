@@ -15,12 +15,14 @@ namespace B13\Sessionpassword\EventListener;
 use B13\Sessionpassword\Helper\SessionHelper;
 use Doctrine\DBAL\ArrayParameterType;
 use Psr\Log\LoggerInterface;
+use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\CMS\Frontend\Authentication\ModifyResolvedFrontendGroupsEvent;
 
+#[AsEventListener(identifier: 'txSessionPasswordGroups')]
 class ModifyResolvedFrontendGroups
 {
     protected string $usergroupTable;
